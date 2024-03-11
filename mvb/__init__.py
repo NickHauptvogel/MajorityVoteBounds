@@ -4,4 +4,4 @@ from .etc import ExtraTreesClassifier
 from .svm import SVMVotersClassifier
 from .abc import OurAdaBoostClassifier, BaseAdaBoostClassifier
 from .mce import MultiClassifierEnsemble
-
+from .nn_posttrain import NeuralNetworkPostTrainClassifier, NeuralNetworkPostTrain

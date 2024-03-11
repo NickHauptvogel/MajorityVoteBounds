@@ -4,26 +4,10 @@ import os
 import sys
 
 DATASETS = [
-        'SVMGuide1',
-        'Phishing',
-        'Mushroom',
-        'Pendigits',
-        'Splice',
-        'Adult',
-        'w1a',
-        'Letter',
-        'Shuttle',
-        'Protein',
-        'SatImage',
-        'Sensorless',
-        'USPS',
-        'Connect-4',
-        'Cod-RNA',
-        'MNIST',
-        'Fashion-MNIST',
+        'CIFAR-10'
         ]
 EXP_PATH  = "../out/"
-NUM_TREES = 100
+NUM_TREES = 20
 BOUNDS_BINARY = [("pbkl","FO"),("c1","Cone"),("c2","Ctwo"),("ctd","CTD"),("tnd","TND"),("dis","DIS")]
 BOUNDS_MULTI  = BOUNDS_BINARY[:1]+BOUNDS_BINARY[3:-1]
 

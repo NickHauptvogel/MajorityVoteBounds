@@ -164,6 +164,30 @@ def _fashionmnist(path):
 
     return X,Y
 
+def _cifar10(path):
+    from keras.datasets import cifar10
+    (x_train, y_train), (x_test, y_test) = cifar10.load_data()
+    # Normalize data.
+    x_train = x_train.astype('float32') / 255
+    x_test = x_test.astype('float32') / 255
+    # subtract pixel mean
+    x_train_mean = np.mean(x_train, axis=0)
+    x_train -= x_train_mean
+    x_test -= x_train_mean
+
+    return (x_train, x_test), (y_train[:, 0], y_test[:, 0])
+
+def _imdb(path):
+    from keras.datasets import imdb
+    from keras.preprocessing import sequence
+    max_features = 20000
+    maxlen = 100
+    (x_train, y_train), (x_test, y_test) = imdb.load_data(num_words=max_features)
+    x_train = sequence.pad_sequences(x_train, maxlen=maxlen)
+    x_test = sequence.pad_sequences(x_test, maxlen=maxlen)
+    return (x_train, x_test), (y_train, y_test)
+
+
 # Available data sets
 DATA_SETS = {
         'Letter':      lambda p: _letter(p, None, None),
@@ -198,6 +222,8 @@ DATA_SETS = {
         'Connect-4':   _connect4,
         'Cod-RNA':     _codrna,
         'Fashion-MNIST':_fashionmnist,
+        'CIFAR-10':     _cifar10,
+        'IMDB':         _imdb,
         }
 
 # Relabel every non-numeric dimension
@@ -227,10 +253,15 @@ def load(dataset, path='data/'):
     assert(dataset in DATA_SETS)
 
     X,Y = DATA_SETS[dataset](path)
-    X = _relabel(X)
-    Y = np.reshape(_relabel(np.reshape(Y,(Y.shape[0],1))), (-1,))
 
-    X = X.astype(float)
-    Y = Y.astype(int)
+    if isinstance(X, tuple):
+        X = (X[0].astype(float), X[1].astype(float))
+        Y = (Y[0].astype(int), Y[1].astype(int))
+    else:
+        X = _relabel(X)
+        Y = np.reshape(_relabel(np.reshape(Y,(Y.shape[0],1))), (-1,))
+
+        X = X.astype(float)
+        Y = Y.astype(int)
 
     return X,Y
