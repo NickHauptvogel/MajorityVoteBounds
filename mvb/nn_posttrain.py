@@ -12,7 +12,8 @@ from . import util, mvbase
 
 class NeuralNetworkPostTrain:
 
-    def __init__(self, ensemble_path: str):
+    def __init__(self, ensemble_path: str, model_file: str):
+        model_name = model_file.replace('.h5', '')
         self.ensemble_path = ensemble_path
         # Find file that ends with config.json
         config_file = [f.path for f in os.scandir(ensemble_path) if f.name.endswith('config.json')][0]
@@ -23,20 +24,20 @@ class NeuralNetworkPostTrain:
         with open(scores_file, 'r') as f:
             self.scores = json.load(f)
         # Find file that ends with predictions.pkl
-        test_predictions_file = [f.path for f in os.scandir(ensemble_path) if f.name.endswith('test_predictions.pkl')][0]
+        test_predictions_file = model_name+'_test_predictions.pkl'
         with open(test_predictions_file, 'rb') as f:
             self.test_predictions = pickle.load(f)
             if self.test_predictions.shape[1] == 1:
                 # Add the complementary class
                 self.test_predictions = np.concatenate((1-self.test_predictions, self.test_predictions), axis=1)
 
-        val_predictions_file = [f.path for f in os.scandir(ensemble_path) if f.name.endswith('val_holdout_predictions.pkl')]
+        val_predictions_file = model_name+'_val_holdout_predictions.pkl'
         self.val_indices_name = 'holdout_indices'
-        if len(val_predictions_file) == 0:
-            val_predictions_file = [f.path for f in os.scandir(ensemble_path) if f.name.endswith('val_predictions.pkl')]
+        self.use_holdout = True
+        if not os.path.isfile(val_predictions_file):
+            val_predictions_file = model_name+'_val_predictions.pkl'
             self.val_indices_name = 'val_indices'
-            print("USING VALIDATION SET. MAKE SURE IT WAS NOT USED DURING TRAINING")
-        val_predictions_file = val_predictions_file[0]
+            self.use_holdout = False
         with open(val_predictions_file, 'rb') as f:
             self.val_predictions = pickle.load(f)
             if self.val_predictions.shape[1] == 1:
@@ -56,21 +57,33 @@ class NeuralNetworkPostTrainClassifier(mvbase.MVBounds):
     def __init__(
             self,
             max_estimators: int,
-            ensemble_path: str
+            ensemble_path: str,
+            indices,
             ):
 
         estimators = []
 
         # List all directories in ensemble_path
         ensemble_dirs = sorted([f.path for f in os.scandir(ensemble_path) if f.is_dir()])
-        # Take the max_estimators first directories
-        ensemble_dirs = ensemble_dirs[:max_estimators]
 
-        for i in range(max_estimators):
-            # Load the model
-            model = NeuralNetworkPostTrain(ensemble_dirs[i])
-            # Add the model to the estimators
-            estimators.append(model)
+        for dir in ensemble_dirs:
+            model_files = sorted([f.path for f in os.scandir(dir) if f.name.endswith('.h5')])
+            for model_file in model_files:
+                # Load the model
+                model = NeuralNetworkPostTrain(dir, model_file)
+                # Add the model to the estimators
+                estimators.append(model)
+
+        if indices is not None:
+            if len(indices) != max_estimators:
+                raise ValueError(f"Number of indices ({len(indices)}) does not match max_estimators ({max_estimators})")
+            estimators = [estimators[i] for i in indices]
+        else:
+            estimators = estimators[:max_estimators]
+
+        # Make sure to warn the user
+        if any([not est.use_holdout for est in estimators]):
+            print("USING VALIDATION SET. MAKE SURE IT WAS NOT USED DURING TRAINING")
 
         super().__init__(estimators, sample_mode='DUMMY', random_state=1)
 

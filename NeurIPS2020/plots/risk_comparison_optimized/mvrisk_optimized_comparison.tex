@@ -90,14 +90,6 @@ vertical sep=0pt,
 horizontal sep=0pt,
 },
   ]
-\nextgroupplot[ymode=log, RiskPlot, RiskPlotBin, title=Binary, xticklabels from table={\tbin}{dataset}, ylabel={$\hat L(\MV_{\rho^*},\testset) / \hat L(\MV_u,\testset)$}]
-\addplot [Lam]   table[x expr=\coordindex,y=lam_diff,y error minus=lam_q25,y error plus=lam_q75]{\tbin};
-\addlegendentry{$\rho_{\FO}^*$}
-\addplot [MV]   table[x expr=\coordindex,y=tnd_diff,y error minus=tnd_q25,y error plus=tnd_q75]{\tbin};
-\addlegendentry{$\rho_{\TND}^*$}
-\addplot [DIS]   table[x expr=\coordindex,y=dis_diff,y error minus=dis_q25,y error plus=dis_q75]{\tbin};
-\addlegendentry{$\rho_{\DIS}^*$}
-\addplot[line legend, sharp plot, mark=None, black, samples=2,domain=-10:10] {0.0};
 
 \nextgroupplot[ymode=log,RiskPlot, RiskPlotMul, title=Multiclass, xticklabels from table={\tmul}{dataset}]
 \addplot [Lam]   table[x expr=\coordindex,y=lam_diff,y error minus=lam_q25,y error plus=lam_q75]{\tmul};

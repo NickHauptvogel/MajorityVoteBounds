@@ -1,6 +1,5 @@
 uniform_bounds:
 	python plot.py uniform
-	cd bounds_uniform; pdflatex bounds_uniform_bin.tex; rm -f bounds_uniform_bin.{log,aux}
 	cd bounds_uniform; pdflatex bounds_uniform_mul.tex; rm -f bounds_uniform_mul.{log,aux}
 	rm -f texput.log
 

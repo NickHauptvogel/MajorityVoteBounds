@@ -222,8 +222,8 @@ DATA_SETS = {
         'Connect-4':   _connect4,
         'Cod-RNA':     _codrna,
         'Fashion-MNIST':_fashionmnist,
-        'CIFAR-10':     _cifar10,
-        'IMDB':         _imdb,
+        'cifar10':     _cifar10,
+        'imdb':         _imdb,
         }
 
 # Relabel every non-numeric dimension
